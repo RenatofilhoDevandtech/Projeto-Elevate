@@ -1,26 +1,80 @@
-@import "tailwindcss";
+/* src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap');
+@import "tailwindcss"; /* Importa o Tailwind CSS */
 
+/* Definição de variáveis CSS globais */
+:root {
+  --brand-blue: #007BFF;
+  --brand-blue-dark: #0056b3;
+  --brand-green: #28A745;
+  --brand-green-dark: #1e7e34;
+  --brand-white: #FFFFFF;
+  --brand-gray: #F8F9FA;
+  --brand-gray-medium: #E9ECEF;
+  --brand-gray-dark: #CED4DA;
+  --text-primary: #212529;
+  --text-secondary: #6C757D;
+  --danger-red: #DC3545; /* Adicionando uma cor de perigo */
+}
 
+/* Estilos base para o corpo da página */
 body {
-  font-family: 'Inter', sans-serif;
-  color: #1a202c; 
-  background-color: #f7fafc; 
+  font-family: "Libre Franklin", sans-serif;
+  color: var(--text-primary);
+  background-color: var(--brand-gray);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom scrollbar (opcional, mas melhora a estética) */
+/* ----- SUAS CLASSES UTILITÁRIAS PERSONALIZADAS ----- */
+/* Cores de Fundo */
+.bg-brand-blue { background-color: var(--brand-blue); }
+.bg-brand-blue-dark { background-color: var(--brand-blue-dark); }
+.bg-brand-green { background-color: var(--brand-green); }
+.bg-brand-green-dark { background-color: var(--brand-green-dark); }
+.bg-brand-white { background-color: var(--brand-white); }
+.bg-brand-gray { background-color: var(--brand-gray); }
+.bg-brand-gray-medium { background-color: var(--brand-gray-medium); }
+.bg-brand-gray-dark { background-color: var(--brand-gray-dark); }
+.bg-danger-red { background-color: var(--danger-red); }
+
+/* Cores de Texto */
+.text-brand-blue { color: var(--brand-blue); }
+.text-brand-blue-dark { color: var(--brand-blue-dark); } /* Útil para texto sobre fundo claro */
+.text-brand-green { color: var(--brand-green); }
+.text-brand-white { color: var(--brand-white); }
+.text-brand-gray-dark { color: var(--brand-gray-dark); }
+.text-primary { color: var(--text-primary); }       /* Você já tinha esta */
+.text-secondary { color: var(--text-secondary); }
+.text-danger-red { color: var(--danger-red); }
+
+/* Cores de Borda */
+.border-brand-blue { border-color: var(--brand-blue); }
+.border-brand-green { border-color: var(--brand-green); }
+.border-brand-gray-medium { border-color: var(--brand-gray-medium); }
+.border-brand-gray-dark { border-color: var(--brand-gray-dark); }
+
+/* Você pode adicionar classes para hover aqui também, se preferir não usar as do Tailwind para isso.
+   Exemplo:
+   .hover\:bg-brand-blue-dark:hover { background-color: var(--brand-blue-dark); }
+   Mas o Tailwind já lida bem com hovers em classes de cor padrão (ex: hover:bg-blue-700).
+   Se quiser hover para suas classes manuais, você teria que definir explicitamente.
+   É mais simples usar as classes de hover do Tailwind junto com suas classes de cor.
+   Ex: className="bg-brand-blue hover:bg-brand-blue-dark ..."
+*/
+
+/* Customização da barra de rolagem */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--brand-gray-medium);
 }
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--brand-gray-dark);
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: var(--text-secondary);
 }
