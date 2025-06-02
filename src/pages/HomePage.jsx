@@ -173,18 +173,31 @@ const HomePage = () => {
           <h2 className="text-3xl sm:text-4xl font-bold text-[var(--text-primary)] mb-5">
             Pronto para <span className="text-[var(--brand-blue)]">Elevar</span> sua Carreira?
           </h2>
-          <p className="text-lg text-[var(--text-secondary)] mb-10 max-w-xl mx-auto">
-            Não espere o futuro acontecer. Construa-o. Junte-se à comunidade Elevate e comece sua transformação hoje mesmo.
+          <p className="text-md sm:text-lg text-[var(--text-secondary)] max-w-2xl mx-auto mb-10">
+            Junte-se a milhares de profissionais que estão transformando suas carreiras com a Elevate.
           </p>
-          <Button
-            variant="primary" // Primário para destaque
-            size="lg"
-            className="!px-12 !py-4 text-lg font-semibold shadow-xl transform hover:scale-105"
-            onClick={/* idealmente abre o modal de registro */ () => navigate('/#auth-modal-register')} // Ou navega para uma página de registro
-            rightIcon={UserPlus}
-          >
-            Crie Sua Conta Grátis
-          </Button>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Button
+              variant="primary"
+              size="lg"
+              className="!px-8 !py-4 text-md font-semibold"
+              onClick={() => navigate('/cadastro')}
+              rightIcon={UserPlus}
+            >
+              Criar Conta Gratuita
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="!px-8 !py-4 text-md font-semibold"
+              onClick={() => navigate('/trilhas')}
+            >
+              Explorar Trilhas
+            </Button>
+          </div>
+          <p className="text-xs mt-6 text-[var(--text-secondary)]">
+            Já tem uma conta? <Link to="/login" className="text-[var(--brand-blue)] hover:underline">Faça login</Link>
+          </p>
         </div>
       </section>
     </div>
