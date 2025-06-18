@@ -1,89 +1,95 @@
-import React from 'react';
-import PropTypes from 'prop-types'; // Lembre-se: npm install prop-types
-import { Link, useNavigate } from 'react-router-dom'; // Usando useNavigate para melhor navegação
-import { Construction, ArrowLeft, Home } from 'lucide-react';
-import Button from './Button'; // Seu componente Button estilizado
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
+import { Link, useNavigate } from 'react-router-dom';
+import { Construction, ArrowLeft, Home, Mail } from 'lucide-react';
+import Button from './Button';
+import api from '../../services/api'; // Importamos a API para uso real
 
 const UnderConstruction = ({
   pageName,
   expectedFeatures = [],
-  message, // Mensagem customizada opcional
+  message,
 }) => {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedback, setFeedback] = useState('');
+
+  const handleNotifySubmit = async (e) => {
+    e.preventDefault();
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
+      setFeedback('Por favor, insira um e-mail válido.');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setFeedback('Registrando seu interesse...');
+    
+    try {
+      // Chamada real à API que criamos
+      const response = await api.post('/subscribe/feature-update', { email, feature: pageName });
+      
+      setFeedback(response.data.message || 'Obrigado! Seu interesse foi registrado.');
+      setEmail('');
+    } catch (error) { // A variável 'error' agora será usada
+      // MELHORIA: Usamos a variável 'error' para dar um feedback mais detalhado e registrá-la no console.
+      console.error("Erro ao registrar interesse:", error); // Log para depuração
+      setFeedback(error.response?.data?.message || 'Ocorreu um erro. Tente novamente mais tarde.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <div
-      // Usando suas classes personalizadas e utilitários Tailwind
-      className="flex flex-col items-center justify-center text-center py-12 sm:py-16 md:py-20
-                 bg-brand-white rounded-xl shadow-xl min-h-[70vh] sm:min-h-[65vh] px-4 sm:px-6 lg:px-8"
-    >
-      <Construction
-        // Use .text-brand-blue
-        className="text-brand-blue mb-5 sm:mb-6 animate-pulse" // Animação sutil para o ícone
-        size={50} // Tamanho base para mobile
-        // Ajuste de tamanho para telas maiores (Tailwind não suporta props responsivas diretamente,
-        // mas você pode ter diferentes ícones/componentes ou ajustar via CSS se necessário)
-        // Para lucide-react, o size é um número.
-      />
+    <div className="flex flex-col items-center justify-center text-center py-12 sm:py-16 md:py-20 bg-brand-white rounded-xl shadow-xl min-h-[70vh] px-4 sm:px-6">
+      <Construction className="text-brand-blue mb-6 animate-pulse" size={50} />
 
-      <h1
-        // Use .text-brand-blue
-        className="text-2xl sm:text-3xl md:text-4xl font-bold text-brand-blue mb-3 sm:mb-4"
-      >
+      <h1 className="text-3xl sm:text-4xl font-bold text-brand-blue mb-4">
         Em Construção!
       </h1>
 
-      <p
-        // Use .text-text-secondary e .text-brand-green
-        className="text-md sm:text-lg lg:text-xl text-text-secondary mb-6 sm:mb-8 max-w-md md:max-w-lg leading-relaxed"
-      >
-        {message || (
-          <>
-            A seção de <strong className="text-brand-green font-semibold">{pageName}</strong> está sendo
-            cuidadosamente preparada pela nossa equipe para elevar sua experiência.
-          </>
-        )}
+      <p className="text-lg text-text-secondary mb-8 max-w-lg leading-relaxed">
+        {message || `A seção de ${pageName} está sendo preparada pela nossa equipe para elevar sua experiência.`}
       </p>
 
       {expectedFeatures.length > 0 && (
-        <div
-          // Use .bg-brand-gray, .text-text-primary, .text-text-secondary
-          className="mb-8 text-left w-full max-w-md md:max-w-lg bg-brand-gray p-4 sm:p-6 rounded-lg shadow-sm border border-brand-gray-medium"
-        >
-          <h3 className="text-base sm:text-lg font-semibold text-text-primary mb-3">
-            O que esperar em breve:
-          </h3>
-          <ul className="list-disc list-inside text-text-secondary space-y-1.5 text-sm sm:text-base">
-            {expectedFeatures.map((feature, index) => (
-              <li key={index}>{feature}</li>
-            ))}
+        <div className="mb-8 text-left w-full max-w-lg bg-brand-gray p-6 rounded-lg border border-brand-gray-medium">
+          <h3 className="text-lg font-semibold text-text-primary mb-3">O que esperar em breve:</h3>
+          <ul className="list-disc list-inside text-text-secondary space-y-2 text-base">
+            {expectedFeatures.map((feature, index) => <li key={index}>{feature}</li>)}
           </ul>
         </div>
       )}
 
-      <p className="text-text-secondary mb-8 text-sm sm:text-base">
-        Agradecemos sua paciência e volte em breve para conferir as novidades!
-      </p>
+      {/* Formulário de captura de leads */}
+      <div className="w-full max-w-lg mb-8 p-6 rounded-lg bg-blue-50 border border-blue-200">
+        <h3 className="text-lg font-semibold text-brand-blue mb-3">Seja o primeiro a saber!</h3>
+        <p className="text-sm text-blue-800 mb-4">Deixe seu e-mail e nós te avisaremos assim que esta seção for lançada.</p>
+        <form onSubmit={handleNotifySubmit} className="flex flex-col sm:flex-row gap-2">
+          <div className="relative flex-grow">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-gray-dark" size={20} />
+            <input 
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="seu.email@exemplo.com"
+              required
+              className="w-full p-3 pl-10 border border-brand-gray-medium rounded-lg focus:ring-2 focus:ring-brand-blue focus:border-transparent outline-none"
+              disabled={isSubmitting}
+            />
+          </div>
+          <Button type="submit" variant="primary" isLoading={isSubmitting} disabled={isSubmitting}>
+            Avise-me
+          </Button>
+        </form>
+        {feedback && <p className="text-xs mt-3 text-gray-600">{feedback}</p>}
+      </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full max-w-xs sm:max-w-sm md:max-w-md">
-        <Button
-          variant="outline" // Para um visual mais sutil no "Voltar"
-          size="md"       // Tamanho base
-          // smSize="lg" // Se o seu Button aceitar props de tamanho responsivo
-          onClick={() => navigate(-1)} // useNavigate para voltar uma página no histórico
-          leftIcon={ArrowLeft}
-          fullWidth
-        >
+      <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
+        <Button variant="outline" size="md" onClick={() => navigate(-1)} leftIcon={ArrowLeft} fullWidth>
           Voltar
         </Button>
-        <Button
-          variant="primary"
-          size="md"
-          // smSize="lg"
-          onClick={() => navigate('/')} // Navega para a página inicial
-          leftIcon={Home}
-          fullWidth
-        >
+        <Button variant="primary" size="md" onClick={() => navigate('/')} leftIcon={Home} fullWidth>
           Página Inicial
         </Button>
       </div>
