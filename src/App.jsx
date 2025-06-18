@@ -9,6 +9,7 @@ import InterviewSimPage from './pages/InterviewSimPage';
 import CommunityPage from './pages/CommunityPage';
 import CertificatesPage from './pages/CertificatesPage';
 import NotFoundPage from './pages/NotFoundPage';
+import Educadores from './Mayara/Educadores'; // Importe sua nova página
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/simulador-entrevista" element={<InterviewSimPage />} />
         <Route path="/comunidade" element={<CommunityPage />} />
         <Route path="/certificados" element={<CertificatesPage />} />
+        <Route path="/educadores" element={<Educadores />} /> {/* Sua nova rota */}
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

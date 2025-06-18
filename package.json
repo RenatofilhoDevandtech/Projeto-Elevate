@@ -31,5 +31,18 @@
     "postcss": "^8.5.3",
     "tailwindcss": "^4.1.7",
     "vite": "^6.3.5"
-  }
+  },
+  "description": "This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.",
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RenatofilhoDevandtech/Projeto-Elevate.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RenatofilhoDevandtech/Projeto-Elevate/issues"
+  },
+  "homepage": "https://github.com/RenatofilhoDevandtech/Projeto-Elevate#readme"
 }
