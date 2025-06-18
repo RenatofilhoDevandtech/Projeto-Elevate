@@ -1,26 +1,19 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
 const Button = ({
-  // Props que são para a lógica/estilo do componente React e não diretamente para o DOM <button>
-  // (a menos que também sejam atributos HTML válidos como 'type', 'disabled', 'onClick')
   children,
-  variant = 'primary',
-  size = 'md',
+  variant = "primary",
+  size = "md",
   isLoading = false,
   fullWidth = false,
-  leftIcon: LeftIcon,    // 'leftIcon' é desestruturada aqui e aliased para LeftIcon
-  rightIcon: RightIcon,  // 'rightIcon' é desestruturada aqui e aliased para RightIcon
-  className = '',         // 'className' será combinada e aplicada
-  
-  // Props que SÃO atributos HTML válidos para <button> ou manipuladores de evento
+  leftIcon: LeftIcon,
+  rightIcon: RightIcon,
+  className = "",
   onClick,
-  type = 'button',
-  disabled = false,       // 'disabled' é calculado abaixo baseado em isLoading também
-
-  // ...restanteDasProps captura quaisquer outras props passadas (ex: aria-*, data-*, title)
-  // que DEVEM ser aplicadas ao <button> do DOM.
-  ...restanteDasProps 
+  type = "button",
+  disabled = false,
+  ...restanteDasProps
 }) => {
   const baseStyles = `font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[var(--brand-gray)]
                       transition-all duration-200 ease-in-out inline-flex items-center justify-center
@@ -54,34 +47,63 @@ const Button = ({
     lg: 20,
   };
 
-  // Calcula o className final
   const finalClassName = `
     ${baseStyles}
     ${variantStyles[variant]}
     ${sizeStyles[size]}
-    ${fullWidth ? 'w-full' : ''}
-    ${isLoading ? 'cursor-wait' : ''}
+    ${fullWidth ? "w-full" : ""}
+    ${isLoading ? "cursor-wait" : ""}
     ${className} 
-  `; // Adiciona o className passado como prop por último para permitir overrides se necessário
+  `;
 
   return (
     <button
       type={type}
       onClick={onClick}
-      disabled={disabled || isLoading} // O 'disabled' do DOM é calculado
-      className={finalClassName.trim().replace(/\s+/g, ' ')} // Limpa espaços extras
-      {...restanteDasProps} // Apenas as props restantes (que devem ser válidas para o DOM) são espalhadas
+      disabled={disabled || isLoading}
+      className={finalClassName.trim().replace(/\s+/g, " ")}
+      // MELHORIA: Atributo de acessibilidade para indicar o estado de carregamento a leitores de tela.
+      aria-busy={isLoading}
+      {...restanteDasProps}
     >
       {isLoading ? (
-        <svg className="animate-spin h-5 w-5 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        <svg
+          className="animate-spin h-5 w-5 text-current"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
         </svg>
       ) : (
         <>
-          {LeftIcon && <LeftIcon size={iconSize[size]} className={`mr-2 ${children ? '' : 'mr-0'}`} aria-hidden="true" />}
+          {LeftIcon && (
+            <LeftIcon
+              size={iconSize[size]}
+              className={`mr-2 ${children ? "" : "mr-0"}`}
+              aria-hidden="true"
+            />
+          )}
           {children}
-          {RightIcon && <RightIcon size={iconSize[size]} className={`ml-2 ${children ? '' : 'ml-0'}`} aria-hidden="true" />}
+          {RightIcon && (
+            <RightIcon
+              size={iconSize[size]}
+              className={`ml-2 ${children ? "" : "ml-0"}`}
+              aria-hidden="true"
+            />
+          )}
         </>
       )}
     </button>
@@ -91,9 +113,16 @@ const Button = ({
 Button.propTypes = {
   children: PropTypes.node,
   onClick: PropTypes.func,
-  type: PropTypes.oneOf(['button', 'submit', 'reset']),
-  variant: PropTypes.oneOf(['primary', 'secondary', 'outline', 'danger', 'ghost', 'light']),
-  size: PropTypes.oneOf(['sm', 'md', 'lg']),
+  type: PropTypes.oneOf(["button", "submit", "reset"]),
+  variant: PropTypes.oneOf([
+    "primary",
+    "secondary",
+    "outline",
+    "danger",
+    "ghost",
+    "light",
+  ]),
+  size: PropTypes.oneOf(["sm", "md", "lg"]),
   className: PropTypes.string,
   disabled: PropTypes.bool,
   isLoading: PropTypes.bool,

@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Bot, User, Send, Mic, Settings, CornerDownLeft, MessageCircle } from 'lucide-react';
-import Button from '../components/Common/Button'; // Seu componente Button
+import { Bot, User, Send, Mic, Settings, CornerDownLeft } from 'lucide-react';
+import Button from '../components/Common/Button';
+import api from '../services/api'; // Importando nosso cliente de API
 
 const InterviewSimPage = ({ initialDifficulty = 'geral' }) => {
   const [messages, setMessages] = useState([
@@ -15,8 +16,8 @@ const InterviewSimPage = ({ initialDifficulty = 'geral' }) => {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const [currentTopic, setCurrentTopic] = useState(initialDifficulty); // <<< setCurrentTopic será usado agora
-  const [isMicActive, setIsMicActive] = useState(false); // <<< DECLARAÇÃO ADICIONADA
+  const [currentTopic, setCurrentTopic] = useState(initialDifficulty);
+  const [isMicActive, setIsMicActive] = useState(false);
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -33,35 +34,21 @@ const InterviewSimPage = ({ initialDifficulty = 'geral' }) => {
     }
   }, [isTyping]);
 
-  const getBotResponse = async (userInput) => {
+  const getBotResponse = async (currentMessages) => {
     setIsTyping(true);
-    // ... (lógica de getBotResponse como antes)
-    console.log(`Simulando chamada à IA para input: "${userInput}" sobre o tópico: "${currentTopic}"`);
-    return new Promise(resolve => {
-      setTimeout(() => {
-        let botResponseText = `Entendido. Falando sobre ${currentTopic}, poderia me dar um exemplo prático de como você utilizou [habilidade específica relacionada ao tópico]?`;
-        const lowerInput = userInput.toLowerCase();
-
-        if (currentTopic === 'react' || lowerInput.includes("react")) {
-          if (lowerInput.includes("desafio") || lowerInput.includes("difícil")) {
-            botResponseText = "Desafios são ótimos para aprendizado! Conte-me sobre um problema específico em React que te fez pensar fora da caixa e como você o resolveu.";
-          } else {
-            botResponseText = "React é fundamental. Qual padrão de componentização você mais utiliza e por quê?";
-          }
-        } else if (currentTopic === 'python' || lowerInput.includes("python")) {
-          if (lowerInput.includes("projeto") || lowerInput.includes("experiência")) {
-            botResponseText = "Excelente! Descreva um projeto em Python do qual você se orgulha, detalhando sua arquitetura e as bibliotecas que utilizou.";
-          } else {
-            botResponseText = "Python é conhecido por sua legibilidade. Como você garante que seu código Python seja limpo e de fácil manutenção?";
-          }
-        } else if (lowerInput.includes("comportamental") || lowerInput.includes("soft skill")) {
-          botResponseText = "Habilidades comportamentais são essenciais. Descreva uma situação em que você precisou lidar com um conflito em equipe.";
-        } else if (messages.length < 4) {
-            botResponseText = "Interessante. Para continuarmos, poderia elaborar um pouco mais sobre isso?";
-        }
-        resolve(botResponseText);
-      }, 1200 + Math.random() * 800);
-    });
+    try {
+      // Chamada real à nossa API backend
+      const response = await api.post('/ai/interview-chat', {
+        topic: currentTopic,
+        history: currentMessages,
+      });
+      return response.data.response;
+    } catch (error) {
+      console.error("Erro ao chamar a API de IA:", error);
+      return "Desculpe, estou com um problema para me conectar. Por favor, tente novamente em instantes.";
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const handleSendMessage = async (textToSend = inputValue) => {
@@ -70,18 +57,20 @@ const InterviewSimPage = ({ initialDifficulty = 'geral' }) => {
 
     setIsSending(true);
     const newUserMessage = { id: 'user-' + Date.now(), text: currentInput, sender: 'user', timestamp: new Date() };
-    setMessages(prev => [...prev, newUserMessage]);
+    
+    // Passamos o histórico ATUALIZADO para a função de resposta do bot
+    const updatedMessages = [...messages, newUserMessage];
+    setMessages(updatedMessages);
 
     if (textToSend === inputValue) {
       setInputValue('');
     }
 
-    const botResponseText = await getBotResponse(currentInput);
+    const botResponseText = await getBotResponse(updatedMessages);
     
     const newBotMessage = { id: 'bot-' + Date.now(), text: botResponseText, sender: 'bot', timestamp: new Date() };
     setMessages(prev => [...prev, newBotMessage]);
     
-    setIsTyping(false);
     setIsSending(false);
   };
 
@@ -91,42 +80,34 @@ const InterviewSimPage = ({ initialDifficulty = 'geral' }) => {
     { label: "Falar de um Projeto", value: "Posso falar sobre um dos meus projetos?" }
   ];
 
-  // Função de Configurações agora "usa" setCurrentTopic
   const handleOpenSettings = () => {
     const newTopicInput = prompt(
       `Configurações da Entrevista:\nQual tópico você gostaria de focar agora? (ex: react, python, comportamental, ${currentTopic})\nDeixe em branco para cancelar.`,
       currentTopic
     );
 
-    if (newTopicInput !== null && newTopicInput.trim() !== '' && newTopicInput.trim() !== currentTopic) {
+    if (newTopicInput && newTopicInput.trim() !== '' && newTopicInput.trim().toLowerCase() !== currentTopic) {
       const newTopic = newTopicInput.trim().toLowerCase();
-      setCurrentTopic(newTopic); // <<< setCurrentTopic AGORA ESTÁ SENDO USADO
+      setCurrentTopic(newTopic);
       setMessages(prev => [
         ...prev,
         {
           id: 'system-' + Date.now(),
           text: `Ok, o foco da entrevista foi alterado para "${newTopic}".`,
-          sender: 'bot', // Ou um tipo 'system' se quiser diferenciar
+          sender: 'bot',
           timestamp: new Date()
         }
       ]);
-      alert(`Foco da entrevista alterado para: ${newTopic}.`);
-    } else if (newTopicInput === null || newTopicInput.trim() === '') {
-      // Usuário cancelou ou não inseriu nada
-      alert(`Configurações não alteradas. Tópico atual: ${currentTopic}.`);
-    } else {
-      // Tópico é o mesmo
-      alert(`O foco da entrevista já está em "${currentTopic}".`);
     }
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-var(--header-height,6rem)-2rem)] sm:h-[calc(100vh-var(--header-height,6.5rem)-3rem)] max-w-2xl xl:max-w-3xl mx-auto bg-[var(--brand-white)] rounded-xl shadow-2xl overflow-hidden border border-[var(--brand-gray-medium)] my-6">
+    <div className="flex flex-col h-[calc(100vh-var(--header-height,6.5rem)-3rem)] max-w-2xl xl:max-w-3xl mx-auto bg-[var(--brand-white)] rounded-xl shadow-2xl overflow-hidden border border-[var(--brand-gray-medium)] my-6">
       {/* Header */}
       <header className="p-4 border-b border-[var(--brand-gray-medium)] bg-[var(--brand-gray)] flex justify-between items-center flex-shrink-0">
         <h1 className="text-lg font-semibold text-[var(--brand-blue)] flex items-center">
           <Bot size={22} className="mr-2.5 flex-shrink-0" />
-          Simulador de Entrevista IA {/* Tópico Atual: {currentTopic} */}
+          Simulador de Entrevista IA
         </h1>
         <Button variant="ghost" size="sm" onClick={handleOpenSettings} className="p-2 text-[var(--text-secondary)] hover:text-[var(--brand-blue)]" aria-label="Configurações">
           <Settings size={20} />
@@ -157,19 +138,6 @@ const InterviewSimPage = ({ initialDifficulty = 'geral' }) => {
               <span className="typing-indicator mr-2.5">
                 <span></span><span></span><span></span>
               </span>
-              <style jsx>{`
-                .typing-indicator span {
-                  height: 7px; width: 7px; background-color: var(--brand-gray-dark);
-                  border-radius: 50%; display: inline-block; margin: 0 1.5px;
-                  animation: kf_typing_indicator 1.2s infinite ease-in-out;
-                }
-                .typing-indicator span:nth-of-type(1) { animation-delay: -0.24s; }
-                .typing-indicator span:nth-of-type(2) { animation-delay: -0.12s; }
-                @keyframes kf_typing_indicator {
-                  0%, 80%, 100% { opacity: 0.3; transform: scale(0.7); }
-                  40% { opacity: 1; transform: scale(1); }
-                }
-              `}</style>
               Mentor IA está digitando...
             </div>
           </div>
@@ -179,7 +147,7 @@ const InterviewSimPage = ({ initialDifficulty = 'geral' }) => {
 
       {/* Footer com Input */}
       <footer className="p-3 sm:p-4 border-t border-[var(--brand-gray-medium)] bg-[var(--brand-gray)]/70 backdrop-blur-sm flex-shrink-0">
-        {messages.length < 4 && !isTyping && !isSending && (
+        {!isTyping && !isSending && messages.length < 5 && (
             <div className="flex flex-wrap gap-2 mb-2.5">
             {quickSuggestions.map(suggestion => (
                 <button
@@ -206,10 +174,10 @@ const InterviewSimPage = ({ initialDifficulty = 'geral' }) => {
             type="button"
             variant="ghost"
             size="md"
-            className={`p-2.5 text-[var(--text-secondary)] hover:text-[var(--brand-blue)] ${isMicActive ? '!text-[var(--brand-blue)] bg-[var(--brand-blue)]/10' : ''}`} // << isMicActive USADO AQUI
+            className={`p-2.5 text-[var(--text-secondary)] hover:text-[var(--brand-blue)] ${isMicActive ? '!text-[var(--brand-blue)] bg-[var(--brand-blue)]/10' : ''}`}
             onClick={() => {
-                setIsMicActive(!isMicActive); // << setIsMicActive USADO AQUI
-                if (!isMicActive) alert("Funcionalidade de microfone em desenvolvimento!"); // << isMicActive USADO AQUI
+                setIsMicActive(!isMicActive);
+                if (!isMicActive) alert("Funcionalidade de microfone em desenvolvimento!");
             }}
             aria-label="Usar microfone para ditar resposta"
             disabled={isTyping || isSending}
@@ -223,9 +191,8 @@ const InterviewSimPage = ({ initialDifficulty = 'geral' }) => {
             className="p-2.5"
             aria-label="Enviar mensagem"
             disabled={isTyping || isSending || inputValue.trim() === ''}
-            rightIcon={Send}
           >
-            {/* <span className="hidden sm:inline mr-1.5">Enviar</span> */}
+             <Send size={20} />
           </Button>
         </form>
       </footer>

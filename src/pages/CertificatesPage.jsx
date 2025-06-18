@@ -1,136 +1,111 @@
-import React, { useState } from 'react';
-import { Award, Download, Share2, CheckCircle, TrendingUp } from 'lucide-react';
+import  { useState, useEffect } from 'react';
+import { Award, Download, Share2, AlertTriangle, Loader2 } from 'lucide-react';
+import api from '../services/api';
 import Button from '../components/Common/Button';
+import { Link } from 'react-router-dom';
 
-const mockCertificates = [
-  {
-    id: 1,
-    name: 'React Básico',
-    date: '2024-05-10',
-    code: 'ABC123',
-    pdfUrl: '/certificados/react-basico.pdf'
-  },
-  {
-    id: 2,
-    name: 'JavaScript Avançado',
-    date: '2024-06-01',
-    code: 'XYZ789',
-    pdfUrl: '/certificados/js-avancado.pdf'
+const CertificatesPage = () => {
+  const [certificates, setCertificates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchCertificates = async () => {
+      try {
+        // 1. Busca os certificados do usuário logado na nossa rota protegida
+        const response = await api.get('/certificates');
+        setCertificates(response.data);
+      } catch (err) {
+        setError('Não foi possível carregar seus certificados. Tente novamente mais tarde.');
+        console.error("Erro ao buscar certificados:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCertificates();
+  }, []);
+
+  const handleDownload = async (certId, pathTitle) => {
+    try {
+      // 2. Chama a API para o download, recebendo o arquivo como um 'blob'
+      const response = await api.get(`/certificates/${certId}/download`, {
+        responseType: 'blob',
+      });
+      // Cria uma URL temporária para o arquivo em memória
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      // Define o nome do arquivo a ser baixado
+      link.setAttribute('download', `Certificado-Elevate-${pathTitle.replace(/\s+/g, '-')}.pdf`);
+      document.body.appendChild(link);
+      link.click(); // Simula o clique no link para iniciar o download
+      link.parentNode.removeChild(link); // Remove o link após o download
+    } catch (err) {
+      alert('Erro ao baixar o certificado.');
+      console.error("Erro no download:", err);
+    }
+  };
+
+  const handleShare = (uniqueCode) => {
+    // 3. Monta a URL pública de validação e a copia para a área de transferência
+    const url = `${window.location.origin}/certificado/${uniqueCode}`;
+    navigator.clipboard.writeText(url);
+    alert('Link de validação copiado para a área de transferência! Agora você pode compartilhá-lo no LinkedIn.');
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <Loader2 className="animate-spin text-brand-blue" size={40} />
+        <p className="ml-4 text-lg">Carregando seus certificados...</p>
+      </div>
+    );
   }
-];
 
-function CertificatesPage() {
-  const [certificates] = useState(mockCertificates);
-
-  const handleDownload = (pdfUrl) => {
-    window.open(pdfUrl, '_blank');
-  };
-
-  const handleShare = (cert) => {
-    const url = `https://www.linkedin.com/sharing/share-offsite/?url=https://seusite.com/certificado/${cert.code}`;
-    window.open(url, '_blank');
-  };
-
-  const handleValidate = (code) => {
-    alert(`Certificado ${code} validado!`);
-  };
+  if (error) {
+    return <div className="text-center py-20 text-danger-red bg-red-50 p-6 rounded-lg">{error}</div>;
+  }
 
   return (
-    <div className="space-y-24 sm:space-y-32 md:space-y-40">
-      {/* Cabeçalho da página */}
-      <section className="text-center pt-20 pb-20 sm:pt-28 sm:pb-32 bg-gradient-to-br from-[var(--brand-blue)] via-blue-600 to-purple-700 text-white rounded-b-3xl shadow-2xl overflow-hidden">
-        <div className="container mx-auto px-4 relative z-10">
-          <Award size={54} className="mx-auto mb-6 text-[var(--brand-yellow),#FFD700]" />
-          <h1 className="text-4xl sm:text-5xl font-extrabold mb-4 tracking-tighter">
-            Certificados
-          </h1>
-          <p className="text-lg sm:text-xl mb-2 max-w-xl mx-auto opacity-90">
-            Visualize, baixe e compartilhe suas conquistas.
-          </p>
+    <div className="container mx-auto">
+      <h1 className="text-4xl font-bold text-text-primary mb-8">Meus Certificados</h1>
+      {certificates.length === 0 ? (
+        <div className="text-center py-20 bg-brand-white rounded-xl shadow-md border">
+          <Award size={52} className="mx-auto text-brand-gray-dark mb-4" />
+          <h2 className="text-2xl font-semibold text-text-primary">Sua galeria de conquistas está vazia.</h2>
+          <p className="text-text-secondary mt-2 mb-6">Conclua uma trilha de aprendizado para ganhar seu primeiro certificado e exibi-lo aqui!</p>
+          <Link to="/trilhas">
+            <Button variant="primary">Explorar Trilhas</Button>
+          </Link>
         </div>
-      </section>
-
-      {/* Lista de certificados */}
-      <section className="container mx-auto px-4">
-        <div className="mb-12 sm:mb-16 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-2 text-[var(--text-primary)]">
-            Minhas conquistas
-          </h2>
-          <p className="text-md sm:text-lg text-[var(--text-secondary)] max-w-2xl mx-auto">
-            Certificados emitidos após completar trilhas e desafios.
-          </p>
-        </div>
-        {certificates.length > 0 ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {certificates.map(cert => (
-              <div
-                key={cert.id}
-                className="bg-[var(--brand-white)] rounded-xl shadow-lg p-6 flex flex-col items-center text-center hover:shadow-2xl transition-shadow"
-              >
-                <Award className="text-[var(--brand-blue)] mb-3" size={32} />
-                <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-1">{cert.name}</h3>
-                <div className="text-xs text-[var(--text-secondary)] mb-2">
-                  Emitido em: {new Date(cert.date).toLocaleDateString()}
+      ) : (
+        <div className="space-y-6">
+          {certificates.map(cert => (
+            <div key={cert.id} className="bg-brand-white p-6 rounded-xl shadow-lg border border-brand-gray-medium transition-shadow hover:shadow-xl">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center">
+                <div className="bg-green-100 p-4 rounded-full mb-4 sm:mb-0 sm:mr-6">
+                  <Award className="text-brand-green" size={32} />
                 </div>
-                <div className="text-xs mb-4 opacity-70">
-                  Código: <span className="font-mono">{cert.code}</span>
+                <div className="flex-grow">
+                  <h2 className="text-xl font-bold text-brand-blue">{cert.paths.title}</h2>
+                  <p className="text-sm text-text-secondary mt-1">
+                    Emitido em: {new Date(cert.issued_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">Código: {cert.unique_code}</p>
                 </div>
-                <div className="flex flex-wrap gap-2 w-full justify-center mt-auto">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    leftIcon={Download}
-                    className="!px-4"
-                    onClick={() => handleDownload(cert.pdfUrl)}
-                  >
+                <div className="flex gap-3 mt-4 sm:mt-0 sm:ml-auto">
+                  <Button onClick={() => handleDownload(cert.id, cert.paths.title)} variant="primary" size="sm" leftIcon={<Download size={16}/>}>
                     Baixar PDF
                   </Button>
-                  <Button
-                    variant="tertiary"
-                    size="sm"
-                    leftIcon={Share2}
-                    className="!px-4"
-                    onClick={() => handleShare(cert)}
-                  >
+                  <Button onClick={() => handleShare(cert.unique_code)} variant="outline" size="sm" leftIcon={<Share2 size={16}/>}>
                     Compartilhar
-                  </Button>
-                  <Button
-                    variant="success"
-                    size="sm"
-                    leftIcon={CheckCircle}
-                    className="!px-4"
-                    onClick={() => handleValidate(cert.code)}
-                  >
-                    Validar
                   </Button>
                 </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-center text-[var(--text-secondary)] py-8">
-            Nenhum certificado disponível ainda.
-          </p>
-        )}
-      </section>
-
-      {/* Progresso para próximos certificados */}
-      <section className="container mx-auto px-4">
-        <div className="bg-[var(--brand-gray)] rounded-3xl py-12 px-6 shadow-lg text-center">
-          <TrendingUp size={40} className="mx-auto mb-4 text-[var(--brand-green)]" />
-          <h2 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] mb-3">
-            Progresso para o próximo certificado
-          </h2>
-          <p className="text-md sm:text-lg text-[var(--text-secondary)] max-w-xl mx-auto mb-6">
-            Complete trilhas e desafios para desbloquear mais certificados.
-          </p>
-          {/* Barra ilustrativa */}
-          <div className="w-full max-w-lg mx-auto h-3 bg-gray-200 rounded-full overflow-hidden mb-2">
-            <div className="bg-[var(--brand-blue)] h-3 rounded-full animate-pulse-slow" style={{ width: '40%' }} />
-          </div>
-          <div className="text-xs opacity-70">40% de progresso na próxima trilha</div>
+            </div>
+          ))}
         </div>
-      </section>
+      )}
     </div>
   );
 }
