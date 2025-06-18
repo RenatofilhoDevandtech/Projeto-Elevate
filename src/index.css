@@ -54,15 +54,6 @@ body {
 .border-brand-gray-medium { border-color: var(--brand-gray-medium); }
 .border-brand-gray-dark { border-color: var(--brand-gray-dark); }
 
-/* Você pode adicionar classes para hover aqui também, se preferir não usar as do Tailwind para isso.
-   Exemplo:
-   .hover\:bg-brand-blue-dark:hover { background-color: var(--brand-blue-dark); }
-   Mas o Tailwind já lida bem com hovers em classes de cor padrão (ex: hover:bg-blue-700).
-   Se quiser hover para suas classes manuais, você teria que definir explicitamente.
-   É mais simples usar as classes de hover do Tailwind junto com suas classes de cor.
-   Ex: className="bg-brand-blue hover:bg-brand-blue-dark ..."
-*/
-
 /* Customização da barra de rolagem */
 ::-webkit-scrollbar {
   width: 8px;
