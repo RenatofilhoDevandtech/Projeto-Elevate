@@ -1,6 +1,13 @@
-import React, { useState, useEffect } from "react";
+// src/components/Common/Modal.jsx
+import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { X } from "lucide-react";
+
+// Função auxiliar para limpar classes Tailwind (para evitar erros de parsing)
+// Esta função garante que as strings de classe sejam formatadas corretamente.
+const cleanTailwindClasses = (classString) => {
+  return classString.replace(/\s+/g, ' ').trim();
+};
 
 const Modal = ({
   isOpen,
@@ -10,37 +17,48 @@ const Modal = ({
   footerContent,
   size = "md",
 }) => {
-  // MELHORIA: Estado para controlar a animação de entrada/saída
-  const [isShowing, setIsShowing] = useState(false);
+  const [isShowing, setIsShowing] = useState(false); // Controla a animação de entrada/saída
+  const modalRef = useRef(null); // Ref para o container do modal para gerenciar o foco
 
-  // Efeito para fechar com a tecla ESC e travar/liberar o scroll do body
   useEffect(() => {
-    const handleEsc = (event) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
+    let timeoutId;
 
     if (isOpen) {
-      document.body.style.overflow = "hidden";
+      // Pequeno delay para permitir que a transição de opacidade/escala funcione
+      timeoutId = setTimeout(() => setIsShowing(true), 50); 
+      document.body.style.overflow = "hidden"; // Desabilita o scroll do corpo
+      
+      // Lida com o fechamento do modal pela tecla ESC
+      const handleEsc = (event) => {
+        if (event.key === "Escape") {
+          onClose(); 
+        }
+      };
       window.addEventListener("keydown", handleEsc);
-      // Ativa a animação de entrada
-      const timer = setTimeout(() => setIsShowing(true), 10); // Pequeno delay para a transição funcionar
-      return () => clearTimeout(timer);
+
+      // Garante que o foco vá para o modal quando ele abre (acessibilidade)
+      setTimeout(() => {
+        if (modalRef.current) {
+          modalRef.current.focus();
+        }
+      }, 100); 
+
+      // Função de limpeza para quando o modal for fechado ou o componente for desmontado
+      return () => {
+        clearTimeout(timeoutId);
+        document.body.style.overflow = "unset"; // Restaura o scroll do corpo
+        window.removeEventListener("keydown", handleEsc);
+      };
     } else {
-      // Ativa a animação de saída
-      setIsShowing(false);
-      document.body.style.overflow = "unset";
+      setIsShowing(false); // Inicia a animação de saída
+      document.body.style.overflow = "unset"; // Libera o scroll imediatamente ao fechar
     }
+  }, [isOpen, onClose]); // Dependências do useEffect
 
-    return () => {
-      document.body.style.overflow = "unset";
-      window.removeEventListener("keydown", handleEsc);
-    };
-  }, [isOpen, onClose]);
+  // Não renderiza o modal no DOM se estiver fechado e a animação de saída já terminou
+  if (!isOpen && !isShowing) return null;
 
-  if (!isOpen) return null;
-
+  // Mapeamento de classes de tamanho para controlar a largura máxima do modal
   const sizeClasses = {
     sm: "max-w-sm",
     md: "max-w-md",
@@ -53,53 +71,45 @@ const Modal = ({
   };
 
   return (
+    // Overlay do modal (fundo escuro e efeito de desfoque)
     <div
-      className={`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ease-out
-                  ${isShowing ? "opacity-100" : "opacity-0"}`}
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="modal-title-label"
+      className={cleanTailwindClasses(`fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity duration-300 ease-in-out ${isShowing ? "opacity-100" : "opacity-0"}`)}
+      onClick={onClose} // Fecha o modal se clicar fora do conteúdo
+      role="dialog" // Papel para acessibilidade
+      aria-modal="true" // Indica que o conteúdo por trás não é interativo
+      aria-labelledby="modal-title-label" // Liga o modal ao seu título para acessibilidade
+      tabIndex={-1} // Permite que o elemento seja focado programaticamente
+      ref={modalRef} // Anexa a ref para gerenciar o foco
     >
+      {/* Container do conteúdo principal do modal */}
       <div
-        className={`bg-[var(--brand-white)] text-[var(--text-primary)] relative w-full ${
-          sizeClasses[size]
-        }
-                    rounded-xl shadow-2xl flex flex-col max-h-[90vh] cursor-default
-                    transform transition-all duration-300 ease-out
-                    ${
-                      isShowing ? "opacity-100 scale-100" : "opacity-0 scale-95"
-                    }`}
-        onClick={(e) => e.stopPropagation()}
+        className={cleanTailwindClasses(`bg-brand-white text-text-primary relative w-full ${sizeClasses[size]} rounded-xl shadow-lg flex flex-col max-h-[90vh] cursor-default transform transition-all duration-300 ease-in-out ${isShowing ? "opacity-100 scale-100" : "opacity-0 scale-95"}`)}
+        onClick={(e) => e.stopPropagation()} // Impede que cliques dentro do modal o fechem
       >
         {/* Cabeçalho do Modal */}
-        <div className="flex justify-between items-center p-4 sm:p-5 border-b border-[var(--brand-gray-medium)]">
-          <h2
-            id="modal-title-label"
-            className="text-lg sm:text-xl font-semibold text-[var(--text-primary)]"
-          >
-            {title || " "}
+        <div className={cleanTailwindClasses("flex justify-between items-center p-6 border-b border-brand-gray-medium")}>
+          <h2 id="modal-title-label" className={cleanTailwindClasses("text-lg sm:text-xl font-semibold text-text-primary")}>
+            {title || " "} {/* Exibe o título ou um espaço para manter o layout */}
           </h2>
           <button
-            onClick={onClose}
-            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] p-1 rounded-full hover:bg-[var(--brand-gray-medium)] focus:outline-none focus:ring-2 focus:ring-[var(--brand-blue)] focus:ring-offset-2 focus:ring-offset-[var(--brand-white)] transition-colors"
-            aria-label="Fechar modal"
+            onClick={onClose} // Botão para fechar o modal
+            className={cleanTailwindClasses("p-2 rounded-full text-text-secondary hover:text-text-primary hover:bg-brand-gray-medium focus:outline-none focus:ring-2 focus:ring-brand-blue focus:ring-offset-2 focus:ring-offset-brand-white transition-colors duration-200")}
+            aria-label="Fechar modal" // Acessibilidade para o botão de fechar
           >
             <X size={22} />
           </button>
         </div>
 
-        {/* Conteúdo Principal do Modal */}
-        <div className="p-4 sm:p-6 flex-grow overflow-y-auto">{children}</div>
+        {/* Conteúdo Principal do Modal (com rolagem se exceder a altura máxima) */}
+        <div className={cleanTailwindClasses("p-6 flex-grow overflow-y-auto")}>{children}</div>
 
         {/* Rodapé do Modal (Opcional) */}
         {footerContent && (
-          <div className="bg-[var(--brand-gray)] p-4 sm:p-5 border-t border-[var(--brand-gray-medium)] flex flex-wrap justify-end gap-3 rounded-b-xl">
+          <div className={cleanTailwindClasses("bg-brand-gray p-6 border-t border-brand-gray-medium flex flex-wrap justify-end gap-3 rounded-b-xl")}>
             {footerContent}
           </div>
         )}
       </div>
-      {/* CORREÇÃO: Bloco <style jsx global> removido daqui */}
     </div>
   );
 };
@@ -113,4 +123,4 @@ Modal.propTypes = {
   size: PropTypes.oneOf(["sm", "md", "lg", "xl", "2xl", "3xl", "4xl", "fit"]),
 };
 
-export default Modal;
+export default Modal; 
