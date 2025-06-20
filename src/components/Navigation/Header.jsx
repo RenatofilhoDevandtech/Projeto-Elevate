@@ -23,6 +23,7 @@ const Header = () => {
     { to: '/simulador-entrevista', text: 'Entrevista', icon: MessageSquareText },
     { to: '/comunidade', text: 'Comunidade', icon: Users },
     { to: '/certificados', text: 'Certificados', icon: Award },
+    { to: '/educadores', text: 'Educadores', icon: UserCircle } // Novo item para Educadores
   ];
   const navLinkClasses = ({ isActive }) => `flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 ease-in-out whitespace-nowrap ${isActive ? 'bg-brand-blue text-white shadow-sm' : 'text-text-secondary hover:bg-brand-gray-medium hover:text-brand-blue'}`;
   const mobileNavLinkClasses = ({ isActive }) => `flex items-center px-3 py-3 rounded-md text-base font-medium transition-colors duration-150 ease-in-out ${isActive ? 'bg-brand-blue text-white' : 'text-text-primary hover:bg-brand-gray-medium hover:text-brand-blue'}`;

@@ -9,7 +9,7 @@ import InterviewSimPage from './pages/InterviewSimPage';
 import CommunityPage from './pages/CommunityPage';
 import CertificatesPage from './pages/CertificatesPage';
 import NotFoundPage from './pages/NotFoundPage';
-import Educadores from './Mayara/Educadores'; // Importe sua nova página
+import Educadores from './pages/Educadores'; 
 
 function App() {
   return (
