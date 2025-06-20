@@ -1,24 +1,47 @@
-/* src/index.css */
 @import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100..900;1,100..900&display=swap');
-@import "tailwindcss"; /* Importa o Tailwind CSS */
+@import "tailwindcss";
 
-/* Definição de variáveis CSS globais */
+/* ============================
+   🌈 VARIÁVEIS GLOBAIS
+============================ */
 :root {
+  /* Cores principais */
   --brand-blue: #007BFF;
   --brand-blue-dark: #0056b3;
-  --brand-green: #28A745;
-  --brand-green-dark: #1e7e34;
+  --brand-blue-hover: var(--brand-blue-dark);
+
+  --brand-green: #5d0a68;
+  --brand-green-dark: #5e117c;
+
   --brand-white: #FFFFFF;
+
+  /* Tons de cinza */
   --brand-gray: #F8F9FA;
   --brand-gray-medium: #E9ECEF;
   --brand-gray-dark: #CED4DA;
+
+  /* Texto */
   --text-primary: #212529;
   --text-secondary: #6C757D;
-  --danger-red: #DC3545; /* Adicionando uma cor de perigo */
+  --text-inverse: #FFFFFF;
+
+  /* Estado */
+  --danger-red: #17411e;
+
+  /* Gradiente */
+  --gradient-elevate: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-green) 100%);
 }
 
-/* Estilos base para o corpo da página */
+/* ============================
+   ✨ RESET BÁSICO E BODY
+============================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 body {
+  margin: 0;
+  padding: 0;
   font-family: "Libre Franklin", sans-serif;
   color: var(--text-primary);
   background-color: var(--brand-gray);
@@ -26,8 +49,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ----- SUAS CLASSES UTILITÁRIAS PERSONALIZADAS ----- */
-/* Cores de Fundo */
+/* ============================
+   🎨 CORES DE FUNDO
+============================ */
 .bg-brand-blue { background-color: var(--brand-blue); }
 .bg-brand-blue-dark { background-color: var(--brand-blue-dark); }
 .bg-brand-green { background-color: var(--brand-green); }
@@ -37,35 +61,104 @@ body {
 .bg-brand-gray-medium { background-color: var(--brand-gray-medium); }
 .bg-brand-gray-dark { background-color: var(--brand-gray-dark); }
 .bg-danger-red { background-color: var(--danger-red); }
+.bg-gradient-elevate { background: var(--gradient-elevate); }
 
-/* Cores de Texto */
+/* ============================
+   📝 CORES DE TEXTO
+============================ */
 .text-brand-blue { color: var(--brand-blue); }
-.text-brand-blue-dark { color: var(--brand-blue-dark); } /* Útil para texto sobre fundo claro */
+.text-brand-blue-dark { color: var(--brand-blue-dark); }
 .text-brand-green { color: var(--brand-green); }
 .text-brand-white { color: var(--brand-white); }
 .text-brand-gray-dark { color: var(--brand-gray-dark); }
-.text-primary { color: var(--text-primary); }       /* Você já tinha esta */
-.text-secondary { color: var(--text-secondary); }
+.text-text-primary { color: var(--text-primary); }
+.text-text-secondary { color: var(--text-secondary); }
+.text-inverse { color: var(--text-inverse); }
 .text-danger-red { color: var(--danger-red); }
 
-/* Cores de Borda */
+/* ============================
+   🔲 BORDAS
+============================ */
 .border-brand-blue { border-color: var(--brand-blue); }
 .border-brand-green { border-color: var(--brand-green); }
 .border-brand-gray-medium { border-color: var(--brand-gray-medium); }
 .border-brand-gray-dark { border-color: var(--brand-gray-dark); }
+.border-danger-red { border-color: var(--danger-red); }
 
-/* Customização da barra de rolagem */
+/* Bordas com gradiente */
+.border-gradient-elevate {
+  position: relative;
+  z-index: 1;
+}
+
+.border-gradient-elevate::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: var(--gradient-elevate);
+  z-index: -1;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: destination-out;
+}
+
+/* ============================
+   🌟 EFEITOS VISUAIS
+============================ */
+.text-shadow-custom {
+  text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.5), 0px 1px 2px rgba(0,0,0,0.8);
+}
+
+.text-shadow-subtle {
+  text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.gradient-text-elevate {
+  background: var(--gradient-elevate);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ============================
+   🎬 ANIMAÇÕES
+============================ */
+.animate-on-scroll {
+  opacity: 0;
+}
+
+.animated {
+  animation-name: fadeInUp;
+  animation-duration: 0.8s;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-out;
+}
+
+/* ============================
+   📱 MENU MOBILE
+============================ */
+.mobile-menu-open { transform: translateX(0%); }
+.mobile-menu-closed { transform: translateX(-100%); }
+
+/* ============================
+   🖱️ SCROLLBAR
+============================ */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--brand-gray-medium);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--brand-gray-dark);
   border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-secondary);
 }
