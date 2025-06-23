@@ -80,34 +80,41 @@ Este projeto foi construído com as seguintes tecnologias e bibliotecas essencia
 A organização do código segue uma estrutura lógica e modular para facilitar o desenvolvimento, a manutenção e a escalabilidade.
 
 ```bash
-src/
-├── config/             # Configurações de serviços externos (ex: supabaseClient.js)
-├── controllers/        # Contém a lógica de negócio principal e manipula requisições da API.
-│   ├── aiController.js:               Gerencia interações com o Mentor IA.
-│   ├── authController.js:             Lida com registro, login e logout.
-│   ├── certificateController.js:      Controla a geração e validação de certificados.
-│   ├── forumController.js:             Gerencia tópicos e posts do fórum.
-│   ├── pathController.js:             Lida com a busca e gestão de trilhas de aprendizado.
-│   ├── profileTestController.js:       Processa o teste de perfil e recomendações.
-│   ├── progressController.js:          Gerencia o progresso do usuário em conteúdos.
-│   └── subscribeController.js:        Registra interesse em novas funcionalidades.
-├── data/               #Dados estáticos (ex: allPathsData.js, profileTestData.js).
-├── middlewares/        #Funções que processam requisições antes de chegarem aos controllers.
-│   ├── adminAuthMiddleware.js:       Autorização para rotas de administrador.
-│   └── authMiddleware.js:           Proteção de rotas por autenticação JWT.
-├── routes/             #Definição das rotas da API e associação com controllers/middlewares.
-│   ├── aiRoutes.js:                 Rotas para IA.
-│   ├── authRoutes.js:              Rotas de autenticação.
-│   ├── certificateRoutes.js:        Rotas para certificados.
-│   ├── forumRoutes.js:             Rotas do fórum.
-│   ├── pathRoutes.js:              Rotas para trilhas.
-│   ├── profileTestRoutes.js:        Rotas do teste de perfil.
-│   ├── progressRoutes.js:          Rotas de progresso.
-│   └── subscribeRoutes.js:         Rotas de inscrição.
-├── scripts/             #Scripts utilitários para operações de manutenção.
-│   └── seed.js:                   Script para popular o banco de dados com dados iniciais.
-├── utils/              # Funções auxiliares gerais (ex: pdfGenerator.js).
-└── index.js            # Ponto de entrada principal do servidor Express.
+├── components/           # Componentes React reutilizáveis e específicos
+│   ├── Auth/             # -> AuthModal.jsx: Interface de login/registro.
+│   ├── Common/           # -> Button.jsx: Componente de botão reutilizável.
+│   │   ├── Modal.jsx: Base para todos os pop-ups.
+│   │   ├── PathCard.jsx: Card de resumo de trilha.
+│   │   └── PathCardSkeleton.jsx: Esqueleto de carregamento para PathCard.
+│   └── Navigation/       # -> Header.jsx: Componente de cabeçalho.
+│       └── Footer.jsx: Componente de rodapé.
+├── contexts/             # Contextos React para estado global
+│   └── AuthContext.js: Gerencia o estado de autenticação e o AuthModal.
+├── hooks/                # Custom Hooks para lógica reutilizável
+│   └── useDebounce.js: Hook para otimizar funções de busca.
+├── layouts/              # Layouts principais da aplicação
+│   └── MainLayout.jsx: Estrutura base de todas as páginas (Header, Main, Footer).
+├── lib/                  # Configurações de bibliotecas externas
+│   └── supabase-frontend.js: Inicialização do cliente Supabase para o frontend.
+├── pages/                # Componentes que representam páginas completas
+│   ├── CertificatesPage.jsx: Exibe certificados conquistados.
+│   ├── CommunityPage.jsx: Página principal do fórum.
+│   ├── DashboardPage.jsx: Painel do usuário com resumo de progresso.
+│   ├── ForumTopicDetailsPage.jsx: Detalhes de um tópico do fórum.
+│   ├── HomePage.jsx: Página inicial da aplicação.
+│   ├── InterviewSimPage.jsx: Simulador de entrevista com IA.
+│   ├── LearningPathsPage.jsx: Explorador de todas as trilhas de aprendizado.
+│   ├── NotFoundPage.jsx: Página de erro 404.
+│   ├── PathDetailsPage.jsx: Detalhes de uma trilha específica e suas aulas.
+│   ├── ProfileTestPage.jsx: Página do teste de perfil vocacional.
+│   ├── PublicCertificatePage.jsx: Validação pública de certificados.
+│   └── TestResultPage.jsx: Página de resultados do teste de perfil.
+├── services/             # Serviços para comunicação com APIs
+│   └── api.js: Configuração da instância Axios e interceptores.
+├── index.css             # Estilos globais e configurações base do Tailwind
+└── main.jsx              # Ponto de entrada principal da aplicação React
+
+
 ```
 
 ## 🚀 Como Começar
