@@ -1,4 +1,3 @@
-// src/contexts/AuthContext.js
 import React, {
   createContext,
   useState,
@@ -7,12 +6,11 @@ import React, {
   useMemo,
 } from "react";
 import PropTypes from "prop-types";
-import api from "../services/api"; // Nosso cliente de API
-import { supabase } from "../lib/supabase-frontend"; // Nosso cliente Supabase do frontend
-import AuthModal from "../components/Auth/AuthModal"; // <<<< IMPORTAÇÃO CORRETA DO AUTHMODAL
-import { useLocation } from "react-router-dom"; // Importe useLocation para a rota /login-register
+import api from "../services/api";
+import { supabase } from "../lib/supabase-frontend";
+import AuthModal from "../components/Auth/AuthModal"; // Importe o componente AuthModal
+import { useLocation } from "react-router-dom"; // Importe useLocation
 
-// Cria o contexto de autenticação
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -24,13 +22,11 @@ export const AuthProvider = ({ children }) => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalType, setAuthModalType] = useState("login");
 
-  // Função unificada para abrir o modal com um tipo específico
   const openAuthModal = useCallback((type = "login") => {
     setAuthModalType(type);
     setAuthModalOpen(true);
   }, []);
 
-  // Funções para abrir o modal de login/registro diretamente
   const openLoginModal = useCallback(() => {
     openAuthModal("login");
   }, [openAuthModal]);
@@ -234,7 +230,7 @@ export const AuthProvider = ({ children }) => {
   return (
     <AuthContext.Provider value={contextValue}>
       {children}
-      {/* <<<< AQUI: AuthModal é renderizado DENTRO do AuthProvider */}
+      {/* AuthModal é renderizado AQUI no AuthProvider, para ter acesso direto ao estado */}
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
